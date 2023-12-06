@@ -1,11 +1,11 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
+import { RouterLink, RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
-  selector: "route-index",
-  templateUrl: "./index.component.html",
-  styleUrls: ["./index.component.scss"]
+  imports: [RouterModule],
+  selector: 'route-index',
+  templateUrl: './index.component.html',
+  styleUrls: ['./index.component.scss'],
 })
-export class IndexRoute {
-
-}
+export class IndexRoute {}

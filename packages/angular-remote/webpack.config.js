@@ -4,8 +4,9 @@ const {
 } = require("@angular-architects/module-federation/webpack");
 
 module.exports = withModuleFederationPlugin({
-  remotes: {
-    "angular-remote": "http://localhost:3001/remoteEntry.js",
+  name: "angular-remote",
+  exposes: {
+    "./RemoteRoute": "./packages/angular-remote/src/app/remote-page.module.ts",
   },
 
   shared: {

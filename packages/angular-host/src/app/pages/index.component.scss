@@ -1,0 +1,32 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+
+  > hr {
+    width: 50px;
+  }
+
+  main {
+    margin-top: 20px;
+    display: inline-flex;
+    gap: 10px;
+    flex-direction: row;
+  }
+}
+
+a {
+  padding: 10px;
+  background-color: #333;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  text-decoration: none;
+  font-size: large;
+  cursor: pointer;
+  &:hover {
+    background-color: #555;
+  }
+}

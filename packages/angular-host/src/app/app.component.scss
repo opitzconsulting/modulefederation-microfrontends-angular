@@ -1,0 +1,51 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+
+  > div {
+    padding: 10px;
+    font-size: 20px;
+    > div.buttonStateContainer {
+      display: inline-flex;
+      flex-direction: row;
+      gap: 0.5em;
+      align-items: center;
+
+      button {
+        padding: 0.5em 3em;
+        margin: 0.5em 0em;
+        cursor: pointer;
+      }
+      padding: 1em 0em;
+    }
+  }
+  > hr {
+    width: 50px;
+  }
+
+  main {
+    margin-top: 20px;
+    display: inline-flex;
+    gap: 10px;
+    flex-direction: row;
+  }
+}
+
+.links {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  justify-content: center;
+  a {
+    text-decoration: none;
+    color: #aaa;
+    &.active,
+    &:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  }
+}
