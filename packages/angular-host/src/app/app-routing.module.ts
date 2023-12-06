@@ -4,19 +4,19 @@ import { IndexRoute } from './pages/index.component';
 
 const routes: Routes = [
   {
-    path: "",
+    path: '',
     component: IndexRoute,
-    pathMatch: "full"
+    pathMatch: 'full',
   },
   {
-    path: "remoteRoute",
+    path: 'remoteRoute',
     // @ts-ignore
-    component: () => import("angular-remote/RemoteRoute")
-  }
+    component: () => import('angular-remote/RemoteRoute'),
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

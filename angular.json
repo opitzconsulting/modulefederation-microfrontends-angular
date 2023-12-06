@@ -1,0 +1,153 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "packages",
+  "projects": {
+    "angular-host": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "packages/angular-host",
+      "sourceRoot": "packages/angular-host/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "ngx-build-plus:browser",
+          "options": {
+            "outputPath": "dist/angular-host",
+            "index": "packages/angular-host/src/index.html",
+            "main": "packages/angular-host/src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "packages/angular-host/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "packages/angular-host/src/favicon.ico",
+              "packages/angular-host/src/assets"
+            ],
+            "styles": ["packages/angular-host/src/styles.scss"],
+            "scripts": [],
+            "extraWebpackConfig": "packages/angular-host/webpack.config.js",
+            "commonChunk": false
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "extraWebpackConfig": "packages/angular-host/webpack.prod.config.js"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "ngx-build-plus:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-host:build:production",
+              "extraWebpackConfig": "packages/angular-host/webpack.prod.config.js"
+            },
+            "development": {
+              "buildTarget": "angular-host:build:development"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "buildTarget": "angular-host:build",
+            "port": 3000,
+            "publicHost": "http://localhost:3000",
+            "extraWebpackConfig": "packages/angular-host/webpack.config.js"
+          }
+        }
+      }
+    },
+    "angular-remote": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "packages/angular-remote",
+      "sourceRoot": "packages/angular-remote/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/angular-remote",
+            "index": "packages/angular-remote/src/index.html",
+            "main": "packages/angular-remote/src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "packages/angular-remote/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "packages/angular-remote/src/favicon.ico",
+              "packages/angular-remote/src/assets"
+            ],
+            "styles": ["packages/angular-remote/src/styles.scss"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-remote:build:production"
+            },
+            "development": {
+              "buildTarget": "angular-remote:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

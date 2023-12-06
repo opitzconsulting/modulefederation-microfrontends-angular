@@ -1,15 +1,7 @@
 {
   "name": "angular-remote",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve --port 3001",
-    "dev": "npm run start",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "serve": "serve -n -l 3001 dist/angular-remote --cors ",
-    "test": "ng test"
-  },
+  "scripts": {},
   "private": true,
   "dependencies": {
     "@angular-architects/module-federation": "^17.0.1",

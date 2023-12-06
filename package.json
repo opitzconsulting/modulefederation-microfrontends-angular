@@ -4,8 +4,19 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
   "devDependencies": {
-    "lerna": "^8.0.0"
+    "concurrently": "^8.2.2",
+    "prettier": "3.1.0",
+    "serve": "^14.2.1"
+  },
+  "scripts": {
+    "build": "concurrently 'npm:build:*'",
+    "build:host": "ng build angular-host",
+    "build:remote": "ng build angular-remote",
+    "serve": "concurrently 'npm:serve:*'",
+    "serve:host": "serve -n -l 3000 dist/angular-host",
+    "serve:remote": "serve -n -l 3001 dist/angular-remote --cors",
+    "prettier": "prettier packages/*/src/**/*.ts --check",
+    "prettier:fix": "prettier packages/*/src/**/*.ts --write"
   }
 }
