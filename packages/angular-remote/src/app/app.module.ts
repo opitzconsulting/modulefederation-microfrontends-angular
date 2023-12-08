@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
-import RemotePageModule from './remote-page.module';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
@@ -12,7 +11,7 @@ import { RouterModule } from '@angular/router';
     RouterModule.forRoot([
       {
         path: '',
-        loadChildren: () => RemotePageModule,
+        loadChildren: () => import('./remote-page.module'),
       },
     ]),
   ],

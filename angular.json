@@ -22,10 +22,7 @@
             "main": "packages/angular-host/src/main.ts",
             "polyfills": "packages/angular-host/src/polyfills.ts",
             "tsConfig": "packages/angular-host/tsconfig.app.json",
-            "assets": [
-              "packages/angular-host/src/favicon.ico",
-              "packages/angular-host/src/assets"
-            ],
+            "assets": ["packages/angular-host/src/favicon.ico", "packages/angular-host/src/assets"],
             "styles": ["packages/angular-host/src/styles.scss"],
             "preserveSymlinks": true,
             "scripts": [],
@@ -80,7 +77,6 @@
           "defaultConfiguration": "development",
           "options": {
             "publicHost": "http://localhost:3000",
-            "preserveSymlinks": true,
             "port": 3000,
             "extraWebpackConfig": "packages/angular-host/webpack.config.js"
           }
@@ -99,10 +95,7 @@
             "polyfills": "packages/angular-host/src/polyfills.ts",
             "tsConfig": "packages/angular-host/tsconfig.spec.json",
             "karmaConfig": "packages/angular-host/karma.conf.js",
-            "assets": [
-              "packages/angular-host/src/favicon.ico",
-              "packages/angular-host/src/assets"
-            ],
+            "assets": ["packages/angular-host/src/favicon.ico", "packages/angular-host/src/assets"],
             "styles": ["packages/angular-host/src/styles.scss"],
             "scripts": []
           }
@@ -191,8 +184,7 @@
           "options": {
             "publicHost": "http://localhost:3000",
             "port": 3000,
-            "extraWebpackConfig": "packages/angular-remote/webpack.config.js",
-            "preserveSymlinks": true
+            "extraWebpackConfig": "packages/angular-remote/webpack.config.js"
           }
         },
         "extract-i18n": {

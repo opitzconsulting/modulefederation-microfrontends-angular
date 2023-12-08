@@ -1,7 +1,7 @@
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { AppModule } from './app/app.module';
-
-
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+import('./app/app.module').then((e) =>
+  platformBrowserDynamic()
+    .bootstrapModule(e.AppModule)
+    .catch((err) => console.error(err))
+);
