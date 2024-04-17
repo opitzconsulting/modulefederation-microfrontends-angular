@@ -1,6 +1,17 @@
 # Microfrontends für Angular und React
 
-//TODO: Intro
+In der Angular- und React-Welt ist es üblich, Frontends als Single-Page-Application aufzubauen. 
+Dabei gibt es ein inhaltlich leeres HTML-Dokument, welches mithilfe von im Browser laufenden Javascript mit Inhalt befüllt wird (client-side Rendering).
+
+Alle Komponenten der Webseite werden dabei in ein großes Bundle transpiliert. Wir haben es also mit einem Monolithen zu tun. Das HTML-Dokument referenziert einen Einstiegspunkt, von welchem aus das Framework, sowie die benötigten Komponenten importiert werden.
+
+Wie bei monolithen Backends hat das den Vorteil einer single source-of-truth, aber auch den Nachteil, dass die ganze Anwendung an einer Stelle definiert ist. Man kann zwar Komponenten in Bibliotheken auslagern welche von der Anwendung importiert werden; der Build wird aber dennoch zentral durchgeführt.
+
+Dies ist für kleine Frontends in Ordnung, kann aber zu Konflikten bei größeren, von mehreren Teams entwickelten, Frontends führen.  
+In diesem Artikel wurde sich eine potentielle Lösung, das "Microfrontend", anhand einer minimalen React- und Angular-Anwendung angeschaut.
+
+![](./blog_src/monolith-frontend.drawio.png)  
+*Eine Visualisierung eines Monolithen-Frontends. Das HTML-Dokument importiert beim Start Logik aus dem Bundle.*
 
 ## Microfrontends?
 
@@ -32,13 +43,30 @@ import { something } from '../some/module.js';
 const { somethingElse } = await import('../another/module.js');
 //                      ^- der Aufruf ist eine Promise
 // es wird gewartet bis das Modul, sowie alle
-//  Abhängigkeiten des Moduls, geladen wurden.
+//  top-level-Abhängigkeiten des Moduls, geladen wurden.
 ```
+
+
 
 Module Federation verwendet die `import()` Funktion, um das remote Kompilat zu laden. Denn `import()` kann neben relativen Pfaden (`../module.js`) auch URLs (`http://localhost:3001/module.js`) aufrufen. Diese URLs können auch auf andere Server zeigen, solange der remote Server CORS-Header setzt.
 
-Über `import()` können jedoch die remote Module nicht direkt aufgerufen werden, da Bundler wie Webpack und Rollup (Vite)
-TODO
+Über `import()` können jedoch die remote Module nicht direkt aufgerufen werden, da Bundler wie Webpack und Rollup (Vite) die JS-Module umverpacken und für Browser optimieren.  
+Statt einem `import("../util/myModule.js")` findet sich bei Webpack im Bundle ein minifizierter Aufruf von `__webpack_require__(module_id)`. Die ID ist dabei intern, kann also nicht "öffentlich" Konsumiert werden. 
+
+Die `remoteEntry.js` ist hier die Lösung. Sie stellt eine Art Nachschlagwerk bereit. Externe Module importieren die `remoteEntry.js` und rufen das interne Modul über den Namen auf.  
+Hier ist ein Ausschnitt der nicht minifizierten `remoteEntry.js`:
+
+```js
+var moduleMap = {
+	"./RemoteRoute": () => {
+		return __webpack_require__.e(44).then(() => (() => ((__webpack_require__(2044)))));
+	}
+};
+
+/// ... der Rest der remoteEntry.js
+```
+
+
 
 ## Frontends
 
@@ -105,14 +133,7 @@ return (
 
 Das Plugin schreibt dann den Import während des Builds so um, dass stattdessen hier die `remoteEntry.js` vom remote Server importiert, und darüber die gewünschte Komponente gefunden wird.
 
-vvv TODO: Schauen, ob das stimmt  
-Hier ist wichtig anzumerken, dass ein top-level Import, also
-
-```ts
-import RemoteComponent from 'someRemoteEntry/SomeRemoteComponent';
-```
-
-nicht möglich ist, da es sich hier um eine synchrone Operation handeln würde. Da das remote Modul zuerst von einem anderen Server geladen werden muss ergibt das wenig Sinn.
+Hier ist wichtig anzumerken, dass ein top-level Import, also `import RemoteComponent from 'someRemoteEntry/SomeRemoteComponent';` *nicht* möglich ist, da es sich hier um eine synchrone Operation handeln würde. Da das remote Modul zuerst von einem anderen Server geladen werden muss ergibt das wenig Sinn.
 
 Somit muss die `import(...)` Funktion hier verwendet werden. Sie gibt das Modul als Promise zurück.
 
@@ -184,20 +205,42 @@ Durch Module Federation können Webseiten durch mehrere Build-Fragmente definier
 Diese Flexibilität hat jedoch auch Einbuße in der Entwicklererfahrung und Typsicherheit.
 
 Solang man nicht die Anwendung mit `any`s beschmückt kann dank Typescript der Kompiler überprüfen, ob die an eine Komponente übergebenen Props mit dem Interface dieser Komponente übereinstimmen. Durch die Verwendung von Module Federation entfällt diese Kopplung.
-Der Buildvorgang schlägt somit nicht fehl, wenn die Props nicht korrekt übergeben werden. Es muss somit besonders darauf geachtet werden, dass ein stabiles Interface zwischen den Modulen besteht.
+Der Buildvorgang schlägt somit nicht fehl, wenn die Props nicht korrekt übergeben werden. Es muss somit besonders darauf geachtet werden, dass ein stabiles Interface zwischen den Modulen besteht. Dieses Problem findet sich aber genau so bei Microservices wieder.
+
 
 Ein weiterer Schmerzpunkt ist die lokale Entwicklung.
-Es ist üblich beim Entwickeln einen lokalen Dev-Server zu starten, welcher bei Änderungen die relevanten Komponenten neu lädt (hot module reload).
+Es ist üblich beim Entwickeln einen lokalen Dev-Server zu starten, welcher bei Änderungen die relevanten Komponenten neu lädt, ohne die ganze Seite neu laden zu müssen (hot module reload).
 Entwickelt man an der Host-Anwendung, so erkennt der Dev-Server keine Änderungen an den eingebundenen Fragmenten.
+Das remote Kompilat muss dann neu erstellt werden und über den Server bereitgestellt werden, um die Änderung zu bekommen.
+
 Entwickelt man an den jeweiligen Fragmenten, dann muss noch zusätzlich ein Wrapper erstellt werden, welcher eine minimale Webseite mit dem jeweiligen Framework bereitstellt, in welchen die Komponente eingebunden wird.
 
-Zuletzt möchte ich noch die Versionierung und Modulauflösung ansprechen. TODO: Ausweiten
+Zuletzt möchte ich noch die Versionierung und Modulauflösung ansprechen.  
+Ich hatte bei der Implementation des Angular-Beispiels das Problem, dass der Import des remote Moduls zu einem kryptischen Fehler führte. Nach viel Debugging stellte sich ein Unterschied der Angular-Versionen zwischen Host und Remote Frontend als Ursache fest.
+Dieses Problem gab es sogar bei unterschiedlichen Minor-Versionen, was sich ggf. auch Optimierungen des Bundlers zurückführen lässt.  
+
+Solche Probleme gibt es bei Microservices nicht - HTTP / REST und gRPC sind in der Hinsicht stabil. 
 
 ## Alternativen
 
-Zu aller erst sollte man sich überlegen, welche Vorteile man sich durch die Microfrontends erhofft.
+Zu aller erst sollte man sich überlegen, welche Vorteile man sich durch die Microfrontends erhofft. Ist die Anwendung angemessen geschnitten könnte 
 
-// 2 Frontends, React und Angular, React mit Vite, Angular mit Webpack
+### Multi-Page Application
 
-// Alternative Ansätze zu microserv arch
-// Nachteile/ Probleme / DX
+Ein Ansatz ist es, statt einem Host-Frontend, welches die Komponenten von verschiedenen Servern abruft, mehrere Frontends zu haben. Diese können auf verschiedenen Servern deployed / gehostet werden und bspw. mit nginx zusammengeführt werden.
+
+Das Zusammenführen mit nginx hätte den Vorteil, dass ein Zustand zwischen allen Frontends über die `sessionStorage` API geteilt werden kann. Eine Einschränkung der `sessionStorage`-API ist, dass [der Context nur im selben Tab und beim selben Host](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage) übertragen wird.
+Dass wäre beim beschriebenen Szenario mit nginx der Fall.
+
+![](./blog_src/example-mpa.drawio.svg)
+
+Dies hätte auch den Vorteil, dass die einzelnen Frontends Framework-unabhängig sind. Das heißt, ein Framework kann bspw. mit Vue, das andere mit Angular, implementiert werden. 
+
+Ein Nachteil ist, dass beim Wechsel zwischen den beiden Frontends es zu einer längeren Ladezeit kommt, weil ein neues HTML-Dokument geladen und die Skripte ausgeführt werden müssen.
+Dieser Nachteil kann jedoch durch das Setzen von [preload-Links](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload) eingedämpft werden.
+
+Ein weiterer Nachteil ist, dass der Zustand als JSON serialisierbar gemacht werden muss. `sessionStorage` ist ein Key-Value-Store, bei welchem die Werte Strings sind. Der Zustand könnte also bspw. als JSON-String abgelegt werden.
+
+### TODO: Weitere Alternative?
+
+
