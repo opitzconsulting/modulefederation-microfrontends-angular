@@ -223,7 +223,9 @@ Solche Probleme gibt es bei Microservices nicht - HTTP / REST und gRPC sind in d
 
 ## Alternativen
 
-Zu aller erst sollte man sich überlegen, welche Vorteile man sich durch die Microfrontends erhofft. Ist die Anwendung angemessen geschnitten könnte 
+Zu aller erst sollte man sich überlegen, welche Vorteile man sich durch die Microfrontends erhofft. 
+Ist die Anwendung angemessen geschnitten könnte das Frontend einfach in mehrere Unter-Frontends aufgeteilt werden. 
+Ist das unabhängige Deployen der Frontends keine Anforderung wäre das Auslagern der Komponenten in Bibliotheken, welche im Host-Frontend importiert werden, auch eine Option. 
 
 ### Multi-Page Application
 
@@ -234,12 +236,41 @@ Dass wäre beim beschriebenen Szenario mit nginx der Fall.
 
 ![](./blog_src/example-mpa.drawio.svg)
 
-Dies hätte auch den Vorteil, dass die einzelnen Frontends Framework-unabhängig sind. Das heißt, ein Framework kann bspw. mit Vue, das andere mit Angular, implementiert werden. 
 
-Ein Nachteil ist, dass beim Wechsel zwischen den beiden Frontends es zu einer längeren Ladezeit kommt, weil ein neues HTML-Dokument geladen und die Skripte ausgeführt werden müssen.
-Dieser Nachteil kann jedoch durch das Setzen von [preload-Links](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload) eingedämpft werden.
+* (+) die einzelnen Frontends sind framework-unabhängig. Das heißt, ein Framework kann bspw. mit Vue, das andere mit Angular, implementiert werden. 
+* (+) das Update des Frontends muss nicht zentral getriggert werden
+* (+) Anwendung bleibt Typ-Sicher und Entwicklungserfahrung wird nicht eingeschränkt
 
-Ein weiterer Nachteil ist, dass der Zustand als JSON serialisierbar gemacht werden muss. `sessionStorage` ist ein Key-Value-Store, bei welchem die Werte Strings sind. Der Zustand könnte also bspw. als JSON-String abgelegt werden.
+* (-) Keine SPA mehr. Wechsel zwischen Unter-Frontends sorgt für reload. Kann durch das Setzen von [preload-Links](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload) eingedämpft werden 
+* (-) Der (geteilte) Zustand muss JSON-serialisierbar sein, weil `sessionStorage` ein primiter Key-Value-Store ist, welcher Strings ablegt.
+* (-) Keine verschachtelung (ein Frontend wird ein anderes Frontend geladen) ist möglich
+
+
+### Microfrontend über Web-Components
+
+Web Components sind ein relativ neues Konzept. Es erlaubt, wiederverwendbare, isolierte Komponenten ohne ein Framework zu verwenden. Hierfür wird eine Klasse definiert, welche von `HTMLElement` vererbt. Es gibt auch Frameworks, welche auf Web Components aufbauen und das Arbeiten mit diesen vereinfachen, bspw. [Lit](https://lit.dev/).
+
+Man könnte die Microfrontends jeweils in eine Web-Component packen, welche von einem anderen Server geladen wird. Die Web Components können untereinander, ähnlich wie Vue, über Events zum Eltern-Element und über Props zu den Kinder-Element kommunizieren.
+
+Da Web-Komponenten isoliert definiert werden gibt es auch keine Probleme bei verschiedenen Versionen. Es können bspw. 2 Angular-Frontends, eines mit Angular 16, ein anderes mit Angular 17, eingebunden werden. Die Web Components werden von einem anderen Server bereitgestellt, welches aus die Angular-Version im Bundle beinhaltet.
+
+Das bedeutet aber auch, dass wenn man bspw. 3 Angular-Frontends mit derselben Version hat, diese Version auch 3 mal importiert wird, es sei den man externalisiert die Abhängigkeit (vgl `externalizeDeps` bei Vite/Rollup) und referenziert das Versions-Bundle über eine Importmap.
+
+
+* (+) die einzelnen Frontends sind framework-unabhängig
+* (+) das Update des Frontends muss nicht zentral getriggert werden
+* (-) (standardmäßig) größeres Bundle da jedes Frontend das eigene Framework im Bundle beinhaltet
+* (-) nicht Typ-Sicher, Build nicht reproduzierbar
+
+### Auslagern in Bibliothek
+
+Bei dieser Alternative werden die Komponenten in separaten Modulen definiert und als Abhängigkeiten in das Projekt eingebunden.  
+
+![](./blog_src/example-packages.drawio.svg)
+
+* (+) Typ-Sicher, Build ist reproduzierbar, Single Source of Truth
+* (+) Entwicklererfahrung wird nicht eingeschränkt
+* (-) Build ist zentralisiert
 
 ### TODO: Weitere Alternative?
 
